@@ -217,22 +217,67 @@ async def index_endpoint(request: Request, history: Optional[str] = Query(None))
 
     # Note: Using alternative variable substitution to prevent markdown rendering glitches
     # PatChange: Below was max-width: 700px;
-    # PatChange: Below was <div class="header-row">Time           Rate of Rise (°C/h) Temp (°C)</div>
+    # PatChange: Below was <div class="header-row">Time          Rate of Rise (°C/h) Temp (°C)</div>
 
     html_content = """
     <!DOCTYPE html>
     <html>
     <head>
         <title>IoT Temperature Monitor</title>
+        <!-- This meta tag forces mobile browsers to scale everything perfectly -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 40px; }
-            .container { max-width: 300px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-            h2 { color: #2c3e50; margin-top: 0; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+                background-color: #f4f6f9; 
+                color: #333; 
+                margin: 0; 
+                padding: 10px;
+                box-sizing: border-box;
+            }
+            .container { 
+                width: 100%; 
+                max-width: 310px; 
+                margin: 0 auto; 
+                background: white; 
+                padding: 15px; 
+                border-radius: 8px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+                box-sizing: border-box;
+            }
+            h2 { color: #2c3e50; margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
             .mode-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; background: #3498db; color: white; margin-bottom: 15px; }
             .historic-badge { background: #e67e22; }
-            .header-row { font-family: monospace; font-weight: bold; background: #eef2f5; padding: 10px; border-radius: 4px 4px 0 0; white-space: pre; border-bottom: 1px solid #ccc; }
-            textarea { width: 100%; height: 680px; font-family: monospace; font-size: 14px; line-height: 1.5; padding: 10px; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; background-color: #fafafa; resize: vertical; box-sizing: border-box; }
-            .footer { margin-top: 15px; font-size: 12px; color: #7f8c8d; text-align: right; }
+            
+            /* Responsive text row utilizing space-between layout instead of rigid tabs */
+            .header-row { 
+                font-family: monospace; 
+                font-weight: bold; 
+                background: #eef2f5; 
+                padding: 10px; 
+                border-radius: 4px 4px 0 0; 
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 1px solid #ccc;
+                font-size: 13px;
+            }
+            
+            /* Scalable text box maximizing phone real estate */
+            textarea { 
+                width: 100%; 
+                height: calc(100vh - 160px); /* Dynamically fills the phone height */
+                font-family: monospace; 
+                font-size: 14px; 
+                line-height: 1.6; 
+                padding: 10px; 
+                border: 1px solid #ccc; 
+                border-top: none; 
+                border-radius: 0 0 4px 4px; 
+                background-color: #fafafa; 
+                resize: none; 
+                box-sizing: border-box; 
+            }
+            .footer { margin-top: 10px; font-size: 11px; color: #7f8c8d; text-align: right; }
         </style>
         REPLACE_REFRESH_SCRIPT
     </head>
@@ -241,29 +286,17 @@ async def index_endpoint(request: Request, history: Optional[str] = Query(None))
             <h2>IoT Server Monitor</h2>
             <div class="mode-badge REPLACE_BADGE_CLASS">REPLACE_MODE_LABEL</div>
             
-            <div class="header-row">Time    Temp    Rate (°C/h) </div>
+            <div class="header-row">
+                <span>Time</span>
+                <span>Temp (&deg;C)</span>
+                <span>Rate of Rise (&deg;C/h)</span>
+            </div>
             <textarea readonly>REPLACE_BOX_CONTENT</textarea>
             
             <div class="footer">
-                REPLACE_FOOTER_TEXT | Connected to Feed: REPLACE_FEED_ID
+                REPLACE_FOOTER_TEXT | Feed: REPLACE_FEED_ID
             </div>
         </div>
-        <!-- This script registers the custom element -->
-        <script>
-            class MonoBar extends HTMLElement {
-                connectedCallback() {
-                    const length = parseInt(this.getAttribute('length')) || 1;
-                    const color = this.getAttribute('color') || 'currentColor';
-                    
-                    this.style.fontFamily = 'monospace';
-                    this.style.color = color;
-                    // Repeats the solid block unicode character by the length parameter
-                    this.innerHTML = '&#x2588;'.repeat(length);
-                }
-            }
-            customElements.define('mono-bar', MonoBar);
-        </script>
-
     </body>
     </html>
     """
