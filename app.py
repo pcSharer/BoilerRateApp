@@ -168,7 +168,7 @@ def process_and_massage_data(samples: List[Tuple[int, float]], target_duration_h
             if rate_of_rise > max_rate:
                 bar_string = bar_char * round((rate_of_rise - max_rate) / 6)
             
-        lines.append(f"{time_str:>5} {temp_str:>5}{rate_str:>7} " + bar_string)
+        lines.append(f"{time_str:>5} {temp_str:>4}{rate_str:>6} " + bar_string)
 
     return top_line_date, lines
 
@@ -237,7 +237,7 @@ async def index_endpoint(request: Request, history: Optional[str] = Query(None))
             }
             .container { 
                 width: 100%; 
-                max-width: 310px; 
+                max-width: 340px; 
                 margin: 0 auto; 
                 background: white; 
                 padding: 15px; 
